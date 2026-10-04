@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>HOSP 210 Customer Service Feedback Simulation</title>
+<style>
+:root{--ink:#17212b;--muted:#66727f;--line:#dfe5ea;--paper:#fff;--bg:#f4f7f9;--accent:#7b1e2b;--soft:#fff6f3;--good:#eaf7ef;--warn:#fff7df}
+*{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--ink);font-family:Arial,Helvetica,sans-serif}
+header{background:#fff;border-bottom:1px solid var(--line);padding:20px}
+.wrap{max-width:1100px;margin:auto}.brand{display:flex;justify-content:space-between;gap:18px;align-items:center;flex-wrap:wrap}
+h1{font-size:clamp(24px,4vw,38px);margin:0;color:var(--accent)} h2{margin:0 0 12px} h3{margin:14px 0 8px}
+.subtitle{color:var(--muted);margin-top:6px}.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-top:15px}
+button,.btn,select,input,textarea{font:inherit} button,.btn{border:0;border-radius:10px;padding:11px 15px;font-weight:700;cursor:pointer}
+.primary{background:var(--accent);color:white}.secondary{background:#edf1f4;color:var(--ink)}.ghost{background:white;border:1px solid var(--line)}
+main{padding:24px 16px 60px}.panel{background:white;border:1px solid var(--line);border-radius:16px;padding:20px;margin:0 auto 18px;box-shadow:0 4px 18px rgba(0,0,0,.04)}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+@media(max-width:760px){.grid,.grid3{grid-template-columns:1fr}}
+label{font-weight:700;display:block;margin-bottom:6px} select,input,textarea{width:100%;padding:11px;border:1px solid #cfd7de;border-radius:9px;background:white}
+textarea{min-height:120px;resize:vertical}.small{font-size:13px;color:var(--muted)}.hide{display:none!important}
+.card{border:1px solid var(--line);border-radius:13px;padding:15px;background:#fff}.customer{background:#fff8f6;border-left:5px solid var(--accent)}
+.badge{display:inline-block;padding:5px 9px;border-radius:999px;background:#edf1f4;font-size:12px;font-weight:700;margin:2px}
+.score{font-size:28px;font-weight:800;color:var(--accent)}.meter{height:12px;background:#e8edf1;border-radius:20px;overflow:hidden}.meter>div{height:100%;background:var(--accent);width:50%}
+.feedback{padding:12px;border-radius:10px;background:var(--soft);margin:8px 0}.good{background:var(--good)}.warn{background:var(--warn)}
+table{width:100%;border-collapse:collapse;font-size:14px}th,td{border-bottom:1px solid var(--line);padding:9px;text-align:left;vertical-align:top}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap}.right{text-align:right}.center{text-align:center}
+footer{text-align:center;color:var(--muted);font-size:12px;padding:25px}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+<div class="brand"><div><h1>HOSP 210 Customer Service Feedback Simulation</h1>
+<div class="subtitle">Practice → Feedback → Revision → Reflection → Progress</div></div>
+<div><span class="badge">Student Practice</span><span class="badge">Challenge Mode</span><span class="badge">Instructor Dashboard</span></div></div>
+<div class="tabs">
+<button class="primary" onclick="showView('practice')">Practice Lab</button>
+<button class="secondary" onclick="showView('challenge')">Challenge Mode</button>
+<button class="secondary" onclick="showView('progress')">My Progress</button>
+<button class="secondary" onclick="showView('instructor')">Instructor Dashboard</button>
+</div></div></header>
+
+<main class="wrap">
+<section id="practice" class="view">
+<div class="panel"><h2>1. Build Your Service Scenario</h2>
+<div class="grid3">
+<div><label>Student Name</label><input id="student" placeholder="Enter your name"></div>
+<div><label>Service Industry</label><select id="industry"></select></div>
+<div><label>Service Channel</label><select id="channel"><option>Face-to-Face</option><option>Phone</option><option>Email</option><option>Live Chat</option><option>Social Media</option></select></div>
+<div><label>Difficulty</label><select id="difficulty"><option value="1">Level 1 – Basic Request</option><option value="2">Level 2 – Dissatisfied Customer</option><option value="3" selected>Level 3 – Service Failure</option><option value="4">Level 4 – Emotional Customer</option><option value="5">Level 5 – Complex Recovery</option></select></div>
+<div><label>Customer Persona</label><select id="persona"></select></div>
+<div><label>Mode</label><select id="mode"><option>Guided Practice</option><option>Mystery Shopper</option><option>Supervisor Mode</option></select></div>
+</div>
+<div style="margin-top:14px"><label>Optional: Create Your Own Service Setting / Situation</label><textarea id="custom" placeholder="Leave blank to generate a scenario, or describe your own customer-service situation."></textarea></div>
+<div class="toolbar"><button class="primary" onclick="startScenario(false)">Start Simulation</button><button class="ghost" onclick="randomize()">Randomize</button></div>
+</div>
+
+<div id="sim" class="hide">
+<div class="panel customer"><div id="scenarioTags"></div><h2 id="scenarioTitle"></h2><p id="scenarioText"></p>
+<h3>Customer</h3><p id="customerLine"></p>
+<div><b>Customer Emotion</b> <span id="emotionLabel"></span><div class="meter"><div id="emotionBar"></div></div></div></div>
+
+<div class="panel"><h2>2. Your Independent Response</h2>
+<p class="small">Respond first using your own judgment. AI-style coaching appears only after you submit.</p>
+<textarea id="response1" placeholder="What would you say or do?"></textarea>
+<div class="toolbar"><button class="primary" onclick="evaluateFirst()">Submit Response</button><button class="secondary" onclick="serviceDecision()">Service Recovery Decision</button></div>
+<div id="decisionBox" class="hide feedback">
+<label>Choose a service recovery action</label>
+<select id="decision"><option>Apologize and clarify the problem</option><option>Replace or redo the service</option><option>Offer appropriate compensation</option><option>Explain policy and offer an alternative</option><option>Escalate to a supervisor</option><option>Follow up after resolution</option></select>
+</div></div>
+
+<div id="feedbackPanel" class="panel hide"><h2>3. Immediate Feedback</h2>
+<div id="scores" class="grid3"></div>
+<div id="coach"></div>
+<h3>Customer Perspective</h3><div id="perspective" class="feedback"></div>
+<h3>Customer Reaction</h3><div id="reaction" class="customer card"></div>
+<h3>Customer Effort</h3><div id="effort"></div>
+</div>
+
+<div id="revisionPanel" class="panel hide"><h2>4. Revise Your Response</h2>
+<p class="small">Use the feedback to improve your response. Do not simply copy the coaching language.</p>
+<textarea id="response2" placeholder="Write your improved response here."></textarea>
+<button class="primary" onclick="evaluateRevision()">Evaluate Revised Response</button>
+<div id="improvement" class="hide"></div></div>
+
+<div id="reflectionPanel" class="panel hide"><h2>5. Reflection & Final Report</h2>
+<div class="grid">
+<div><label>What did you do well?</label><textarea id="r1"></textarea></div>
+<div><label>What would you change?</label><textarea id="r2"></textarea></div>
+<div><label>How did your response affect the customer?</label><textarea id="r3"></textarea></div>
+<div><label>What would you do differently in a real workplace?</label><textarea id="r4"></textarea></div>
+</div>
+<div class="toolbar"><button class="primary" onclick="completeSimulation()">Complete & Save Report</button><button class="secondary" onclick="resetPractice()">New Simulation</button></div>
+<div id="finalReport" class="hide"></div></div>
+</div>
+</section>
+
+<section id="challenge" class="view hide">
+<div class="panel"><h2>Challenge Mode</h2><p>A random industry, customer persona, channel, and difficulty level will be assigned. The detailed scoring criteria are revealed after your response.</p>
+<div class="grid"><div><label>Student Name</label><input id="challengeName" placeholder="Enter your name"></div><div><label>Challenge Type</label><select id="challengeType"><option>Random Service Encounter</option><option>Service Recovery Challenge</option><option>Policy vs. Customer Satisfaction</option><option>Supervisor Coaching</option></select></div></div>
+<button class="primary" onclick="startChallenge()">Begin Random Challenge</button></div>
+</section>
+
+<section id="progress" class="view hide"><div class="panel"><h2>My Progress</h2><p class="small">This demo stores practice history in this browser.</p><div id="progressContent"></div></div></section>
+
+<section id="instructor" class="view hide">
+<div class="panel" id="instructorLogin"><h2>Instructor Dashboard</h2><p class="small">Demo access code: HOSP210</p><div class="grid"><div><label>Instructor Access Code</label><input id="icode" type="password"></div></div><button class="primary" onclick="openInstructor()">Open Dashboard</button></div>
+<div class="panel hide" id="instructorDash"><div class="toolbar"><button class="primary" onclick="downloadCSV()">Download CSV</button><button class="secondary" onclick="renderInstructor()">Refresh</button><button class="ghost" onclick="clearDemoData()">Clear Demo Data</button></div><h2 style="margin-top:18px">Simulation Records</h2><div id="instructorTable"></div></div>
+</section>
+</main>
+<footer>HOSP 210 • Customer Service Feedback Simulation • Educational prototype</footer>
+
+<script>
+const industries=["Hotel / Lodging","Restaurant / Food Service","Retail","Airline / Travel","Healthcare Service","Banking / Financial Services","Property Management","Event Management","Entertainment","Online / E-commerce","Transportation","Education / Campus Service","Other / Custom"];
+const personas=["Patient","Angry","Anxious","Confused","Demanding","Loyal Customer","First-time Customer","Language Barrier"];
+const scenarios={
+"Hotel / Lodging":["Room Not Ready","A guest arrives after a long trip, but the reserved room is not ready.","I was told my room would be ready. I have been traveling all day. What am I supposed to do now?"],
+"Restaurant / Food Service":["Incorrect Order","A customer has waited for a meal and receives the wrong entrée.","This is not what I ordered, and everyone else at my table already has their food."],
+"Retail":["Return Policy Conflict","A customer wants a refund for an item outside the standard return period.","I have the receipt. I don't understand why you can't just refund it."],
+"Airline / Travel":["Travel Delay","A traveler has missed a connection because of a delay.","I've already been delayed once. I need someone to tell me how I am getting home tonight."],
+"Healthcare Service":["Long Wait","A client is frustrated after a long service wait and limited updates.","I've been waiting much longer than expected and no one has explained the delay."],
+"Banking / Financial Services":["Unexpected Fee","A customer notices a fee they did not expect.","Why was I charged this? No one explained this fee to me."],
+"Property Management":["Maintenance Delay","A resident reports that a maintenance request has not been resolved.","I reported this two days ago. When is someone actually going to fix it?"],
+"Event Management":["Ticket Problem","A guest's ticket is not scanning at event entry.","I paid for this ticket. I should not have to stand here while everyone else goes in."],
+"Entertainment":["Reservation Issue","A customer cannot find a reservation in the system.","I booked this in advance. How can you not have my reservation?"],
+"Online / E-commerce":["Missing Delivery","A customer's order shows delivered but cannot be found.","The tracking says delivered, but I never received my order."],
+"Transportation":["Service Disruption","A rider's scheduled transportation is significantly delayed.","I have an appointment. Why wasn't I told about this delay earlier?"],
+"Education / Campus Service":["Registration Problem","A student cannot access a service they expected to use.","I followed the instructions, but the system still will not let me complete this."],
+"Other / Custom":["Custom Service Situation","Use the situation entered by the student.","Please help me resolve this service problem."]
+};
+let current={}, firstScores={}, finalScores={};
+
+function fillSelect(id,arr){document.getElementById(id).innerHTML=arr.map(x=>`<option>${x}</option>`).join("")}
+fillSelect("industry",industries); fillSelect("persona",personas);
+
+function showView(id){document.querySelectorAll(".view").forEach(x=>x.classList.add("hide"));document.getElementById(id).classList.remove("hide"); if(id==="progress")renderProgress(); if(id==="instructor"&&!document.getElementById("instructorDash").classList.contains("hide"))renderInstructor()}
+function randomize(){industry.selectedIndex=Math.floor(Math.random()*12);persona.selectedIndex=Math.floor(Math.random()*personas.length);channel.selectedIndex=Math.floor(Math.random()*channel.options.length);difficulty.selectedIndex=Math.floor(Math.random()*5)}
+function startChallenge(){if(!challengeName.value.trim()){alert("Enter your name.");return} student.value=challengeName.value.trim();randomize();mode.value="Mystery Shopper";showView("practice");startScenario(true)}
+function startScenario(challenge){
+ let ind=industry.value, data=scenarios[ind]||scenarios["Other / Custom"], own=custom.value.trim();
+ current={student:student.value.trim()||"Student",industry:ind,channel:channel.value,difficulty:+difficulty.value,persona:persona.value,mode:challenge?"Challenge Mode":mode.value,title:data[0],scenario:own||data[1],customer:data[2],started:new Date().toISOString()};
+ if(own){current.title="Student-Created Service Situation";current.customer="I need your help with this situation. What can you do to resolve it?"}
+ scenarioTitle.textContent=current.title;scenarioText.textContent=current.scenario;customerLine.textContent=current.customer;
+ scenarioTags.innerHTML=[current.industry,current.channel,current.persona,"Level "+current.difficulty,current.mode].map(x=>`<span class="badge">${x}</span>`).join("");
+ let e=Math.max(15,65-current.difficulty*9);emotionBar.style.width=e+"%";emotionLabel.textContent=current.difficulty>=4?"Upset / Emotional":current.difficulty>=2?"Dissatisfied":"Concerned";
+ sim.classList.remove("hide");feedbackPanel.classList.add("hide");revisionPanel.classList.add("hide");reflectionPanel.classList.add("hide");response1.value="";response2.value="";
+ sim.scrollIntoView({behavior:"smooth"});
+}
+function serviceDecision(){decisionBox.classList.toggle("hide")}
+function analyze(txt){
+ let t=txt.toLowerCase(), s={Empathy:50,Listening:55,Communication:60,"Problem Solving":50,"Service Recovery":45,Personalization:50,Professionalism:65,"Follow-up":40};
+ const hit=(words)=>words.some(w=>t.includes(w));
+ if(hit(["sorry","apolog","understand","frustrat","appreciate","thank you for"]))s.Empathy+=30;
+ if(hit(["understand","confirm","you said","let me make sure","what happened"]))s.Listening+=25;
+ if(txt.length>80)s.Communication+=12;if(txt.length>180)s.Communication+=8;
+ if(hit(["i can","we can","solution","replace","refund","check","resolve","option","alternative"]))s["Problem Solving"]+=30;
+ if(hit(["apolog","replace","refund","compens","alternative","supervisor","manager"]))s["Service Recovery"]+=28;
+ if(hit(["for you","your","personally","specific"]))s.Personalization+=18;
+ if(hit(["can't","not my","calm down","policy is policy","you need to"]))s.Professionalism-=25;
+ if(hit(["follow up","contact you","update you","next step","by today","within","when"]))s["Follow-up"]+=35;
+ Object.keys(s).forEach(k=>s[k]=Math.max(20,Math.min(100,s[k])));
+ return s;
+}
+function avg(s){return Math.round(Object.values(s).reduce((a,b)=>a+b,0)/Object.keys(s).length)}
+function evaluateFirst(){
+ let txt=response1.value.trim();if(txt.length<20){alert("Please provide a fuller response before submitting.");return}
+ firstScores=analyze(txt);renderScores(firstScores);
+ let low=Object.entries(firstScores).sort((a,b)=>a[1]-b[1]).slice(0,2).map(x=>x[0]);
+ coach.innerHTML=`<div class="feedback good"><b>Strength:</b> ${Object.entries(firstScores).sort((a,b)=>b[1]-a[1]).slice(0,2).map(x=>x[0]).join(" and ")}.</div><div class="feedback warn"><b>Development focus:</b> ${low.join(" and ")}. A stronger response should acknowledge the customer's experience, clarify the issue, offer a realistic next step, and explain follow-up.</div>`;
+ let a=avg(firstScores);perspective.textContent=a>=80?"I feel heard and I understand what will happen next.":a>=65?"I can see that the employee is trying to help, but I still need clearer reassurance or next steps.":"I am not yet confident that my concern has been understood or resolved.";
+ reaction.textContent=a>=80?"Thank you. I appreciate you taking care of this and explaining what happens next.":a>=65?"That helps, but can you tell me exactly what will happen next?":"That really doesn't solve my problem. I need a clearer solution.";
+ let effort=Math.max(1,6-Math.round((firstScores["Problem Solving"]+firstScores["Follow-up"])/40));effort.textContent=`Estimated Customer Effort: ${effort}/5 — ${effort<=2?"Low effort":"The customer may need additional explanation, contact, or follow-up."}`;
+ feedbackPanel.classList.remove("hide");revisionPanel.classList.remove("hide");response2.value=txt;revisionPanel.scrollIntoView({behavior:"smooth"});
+}
+function renderScores(s){scores.innerHTML=Object.entries(s).map(([k,v])=>`<div class="card"><b>${k}</b><div class="score">${v}</div><div class="meter"><div style="width:${v}%"></div></div></div>`).join("")}
+function evaluateRevision(){
+ let txt=response2.value.trim();if(txt.length<20){alert("Please write your revised response.");return}
+ finalScores=analyze(txt);let before=avg(firstScores),after=avg(finalScores),delta=after-before;
+ improvement.innerHTML=`<h3>Improvement Analysis</h3><div class="grid"><div class="card"><div class="small">Initial Response</div><div class="score">${before}/100</div></div><div class="card"><div class="small">Revised Response</div><div class="score">${after}/100</div></div></div><div class="feedback ${delta>=0?"good":"warn"}"><b>Change:</b> ${delta>=0?"+":""}${delta} points. ${delta>5?"Your revision demonstrates meaningful improvement.":"Review the feedback and consider whether empathy, a specific solution, and follow-up are all clearly communicated."}</div>`;
+ improvement.classList.remove("hide");reflectionPanel.classList.remove("hide");reflectionPanel.scrollIntoView({behavior:"smooth"});
+}
+function completeSimulation(){
+ if(!response1.value.trim()||!response2.value.trim()){alert("Complete both responses first.");return}
+ const rec={...current,initialResponse:response1.value.trim(),revisedResponse:response2.value.trim(),initialScore:avg(firstScores),finalScore:avg(finalScores),scores:finalScores,decision:decisionBox.classList.contains("hide")?"":decision.value,reflection:[r1.value,r2.value,r3.value,r4.value],completed:new Date().toISOString()};
+ let data=JSON.parse(localStorage.getItem("hosp210-sim-records")||"[]");data.push(rec);localStorage.setItem("hosp210-sim-records",JSON.stringify(data));
+ let strengths=Object.entries(finalScores).sort((a,b)=>b[1]-a[1]).slice(0,3).map(x=>x[0]).join(", "), dev=Object.entries(finalScores).sort((a,b)=>a[1]-b[1])[0][0];
+ finalReport.innerHTML=`<h3>Customer Service Performance Report</h3><div class="grid3"><div class="card"><div class="small">Overall Performance</div><div class="score">${rec.finalScore}/100</div></div><div class="card"><b>Strengths</b><p>${strengths}</p></div><div class="card"><b>Development Area</b><p>${dev}</p></div></div><div class="feedback"><b>Customer Outcome:</b> ${rec.finalScore>=80?"Satisfied":"Developing"}<br><b>Recommended Practice:</b> Continue practicing empathy, clear next steps, appropriate service recovery, and follow-up.</div>`;
+ finalReport.classList.remove("hide");finalReport.scrollIntoView({behavior:"smooth"});
+}
+function records(){return JSON.parse(localStorage.getItem("hosp210-sim-records")||"[]")}
+function renderProgress(){let d=records();if(!d.length){progressContent.innerHTML="<p>No completed simulations yet.</p>";return}let latest=d.slice().reverse();progressContent.innerHTML=`<div class="grid3"><div class="card"><b>Completed</b><div class="score">${d.length}</div></div><div class="card"><b>Average Final Score</b><div class="score">${Math.round(d.reduce((a,x)=>a+x.finalScore,0)/d.length)}</div></div><div class="card"><b>Latest Score</b><div class="score">${latest[0].finalScore}</div></div></div><h3>History</h3>`+table(latest)}
+function table(d){return `<div style="overflow:auto"><table><thead><tr><th>Date</th><th>Student</th><th>Industry</th><th>Channel</th><th>Persona</th><th>Initial</th><th>Final</th></tr></thead><tbody>${d.map(x=>`<tr><td>${new Date(x.completed).toLocaleString()}</td><td>${esc(x.student)}</td><td>${esc(x.industry)}</td><td>${esc(x.channel)}</td><td>${esc(x.persona)}</td><td>${x.initialScore}</td><td><b>${x.finalScore}</b></td></tr>`).join("")}</tbody></table></div>`}
+function esc(s){return String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
+function openInstructor(){if(icode.value!=="HOSP210"){alert("Incorrect demo access code.");return}instructorLogin.classList.add("hide");instructorDash.classList.remove("hide");renderInstructor()}
+function renderInstructor(){let d=records();instructorTable.innerHTML=d.length?table(d.slice().reverse()):"<p>No simulation records yet.</p>"}
+function downloadCSV(){let d=records();if(!d.length){alert("No records to download.");return}let rows=[["Completed","Student","Industry","Channel","Persona","Difficulty","Mode","Initial Score","Final Score","Initial Response","Revised Response","Reflection"]];d.forEach(x=>rows.push([x.completed,x.student,x.industry,x.channel,x.persona,x.difficulty,x.mode,x.initialScore,x.finalScore,x.initialResponse,x.revisedResponse,(x.reflection||[]).join(" | ")]));let csv=rows.map(r=>r.map(v=>`"${String(v??"").replace(/"/g,'""')}"`).join(",")).join("\n");let b=new Blob([csv],{type:"text/csv"}),a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="HOSP210-Customer-Service-Simulation.csv";a.click()}
+function clearDemoData(){if(confirm("Clear all demo records stored in this browser?")){localStorage.removeItem("hosp210-sim-records");renderInstructor()}}
+function resetPractice(){sim.classList.add("hide");custom.value="";window.scrollTo({top:0,behavior:"smooth"})}
+</script>
+</body></html>
